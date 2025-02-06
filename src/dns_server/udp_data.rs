@@ -68,7 +68,7 @@ impl DnsQuestion {
 pub fn decode_dns_question(buf: &[u8]) -> Option<DnsQuestion> {
     let mut labels = Vec::<Label>::new();
     let mut iter = buf.iter();
-    while let Some(length) = iter.clone().next() {
+    while let Some(length) = iter.next() {
         if *length == 0x00 {
             iter.next();
             break;
@@ -82,10 +82,10 @@ pub fn decode_dns_question(buf: &[u8]) -> Option<DnsQuestion> {
             length: *length,
             content,
         });
-        iter.nth(*length as usize);
+        iter.nth(*length as usize - 1);
     }
-    let question_type = (*iter.next()? as u16) << 8 | (*iter.next()? as u16);
-    let class = (*iter.next()? as u16) << 8 | (*iter.next()? as u16);
+    let question_type = (*iter.next()? as u16) | (*iter.next()? as u16) << 8;
+    let class = (*iter.next()? as u16) | (*iter.next()? as u16) << 8;
     Some(DnsQuestion {
         domain_name: labels,
         question_type,
