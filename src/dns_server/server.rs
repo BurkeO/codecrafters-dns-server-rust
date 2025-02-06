@@ -22,6 +22,7 @@ impl Server {
                     let response_header = DnsHeader {
                         packet_identifier: 1234,
                         query_response_indicator: 1,
+                        question_count: 1,
                         ..DnsHeader::default()
                     };
                     response_buffer[0..12].copy_from_slice(&response_header.to_bytes());
