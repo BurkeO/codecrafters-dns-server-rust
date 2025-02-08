@@ -17,6 +17,7 @@ pub struct DnsHeader {
 
 impl DnsHeader {
     pub fn to_bytes(&self) -> [u8; 12] {
+        //todo this is a bit ugly
         let mut bytes = [0; 12];
         bytes[0] = (self.packet_identifier >> 8) as u8;
         bytes[1] = self.packet_identifier as u8;
@@ -63,32 +64,77 @@ impl DnsQuestion {
         bytes.push(self.class as u8);
         bytes
     }
+
+    pub fn decode_dns_question(buf: &[u8]) -> Option<Self> {
+        //todo lots of copying going on here
+        let mut labels = Vec::<Label>::new();
+        let mut iter = buf.iter();
+        while let Some(length) = iter.next() {
+            if *length == 0x00 {
+                iter.next();
+                break;
+            }
+            let content: String = iter
+                .clone()
+                .take(*length as usize)
+                .map(|&x| x as char)
+                .collect();
+            labels.push(Label {
+                length: *length,
+                content,
+            });
+            iter.nth(*length as usize - 1);
+        }
+        let question_type = (*iter.next()? as u16) | (*iter.next()? as u16) << 8; //todo handle the endianness correctly/platform agnostically
+        let class = (*iter.next()? as u16) | (*iter.next()? as u16) << 8;
+        Some(Self {
+            domain_name: labels,
+            question_type,
+            class,
+        })
+    }
 }
 
-pub fn decode_dns_question(buf: &[u8]) -> Option<DnsQuestion> {
-    let mut labels = Vec::<Label>::new();
-    let mut iter = buf.iter();
-    while let Some(length) = iter.next() {
-        if *length == 0x00 {
-            iter.next();
-            break;
+
+pub struct DnsAnswer {
+    domain_name: Vec<Label>,
+    answer_type: u16,
+    class: u16,
+    ttl: u32,
+    data_length: u16,
+    data: Vec<u8>,
+}
+
+impl DnsAnswer {
+    pub fn new(domain_name: Vec<Label>, answer_type: u16, class: u16, ttl: u32, data: Vec<u8>) -> Self {
+        Self {
+            domain_name,
+            answer_type,
+            class,
+            ttl,
+            data_length: data.len() as u16,
+            data,
         }
-        let content: String = iter
-            .clone()
-            .take(*length as usize)
-            .map(|&x| x as char)
-            .collect();
-        labels.push(Label {
-            length: *length,
-            content,
-        });
-        iter.nth(*length as usize - 1);
     }
-    let question_type = (*iter.next()? as u16) | (*iter.next()? as u16) << 8;
-    let class = (*iter.next()? as u16) | (*iter.next()? as u16) << 8;
-    Some(DnsQuestion {
-        domain_name: labels,
-        question_type,
-        class,
-    })
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::<u8>::new();
+        for label in &self.domain_name {
+            bytes.push(label.length);
+            bytes.extend(label.content.bytes());
+        }
+        bytes.push(0);
+        bytes.push((self.answer_type >> 8) as u8);
+        bytes.push(self.answer_type as u8);
+        bytes.push((self.class >> 8) as u8);
+        bytes.push(self.class as u8);
+        bytes.push((self.ttl >> 24) as u8);
+        bytes.push((self.ttl >> 16) as u8);
+        bytes.push((self.ttl >> 8) as u8);
+        bytes.push(self.ttl as u8);
+        bytes.push((self.data_length >> 8) as u8);
+        bytes.push(self.data_length as u8);
+        bytes.extend(self.data.iter());
+        bytes
+    }
 }
