@@ -19,13 +19,18 @@ impl Server {
             match udp_socket.recv_from(&mut receive_buffer) {
                 Ok((size, source)) => {
                     println!("Received {} bytes from {}", size, source);
-                    let response_header = DnsHeader {
-                        packet_identifier: 1234,
-                        query_response_indicator: 1, //todo don't hard code
-                        question_count: 1,
-                        answer_record_count: 1,
-                        ..DnsHeader::default()
-                    };
+
+                    let query_header = DnsHeader::from_bytes(receive_buffer[0..12].try_into()?);
+
+                    let mut response_header = query_header;
+                    response_header.query_response_indicator = 1;
+                    response_header.authoritative_answer = 0;
+                    response_header.truncation = 0;
+                    response_header.recursion_available = 0;
+                    response_header.reserved = 0;
+                    response_header.response_code = if response_header.opcode == 0 { 0 } else { 4 };
+                    response_header.answer_record_count = 1;
+
                     response_buffer[0..12].copy_from_slice(&response_header.to_bytes());
                     let dns_question =
                         DnsQuestion::decode_dns_question(&receive_buffer[12..]).unwrap();

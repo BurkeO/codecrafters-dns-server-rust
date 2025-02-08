@@ -37,6 +37,25 @@ impl DnsHeader {
         bytes[11] = self.additional_record_count as u8;
         bytes
     }
+
+    pub fn from_bytes(header : &[u8; 12]) -> Self
+    {
+        Self {
+            packet_identifier: (header[0] as u16) << 8 | header[1] as u16,
+            query_response_indicator: header[2] >> 7,
+            opcode: (header[2] >> 3) & 0b00001111,
+            authoritative_answer: (header[2] >> 2) & 0b00000001,
+            truncation: (header[2] >> 1) & 0b00000001,
+            recursion_desired: header[2] & 0b00000001,
+            recursion_available: header[3] >> 7,
+            reserved: (header[3] >> 4) & 0b00000111,
+            response_code: header[3] & 0b00001111,
+            question_count: (header[4] as u16) << 8 | header[5] as u16,
+            answer_record_count: (header[6] as u16) << 8 | header[7] as u16,
+            authority_record_count: (header[8] as u16) << 8 | header[9] as u16,
+            additional_record_count: (header[10] as u16) << 8 | header[11] as u16,
+        }
+    }
 }
 
 pub struct Label {
@@ -85,7 +104,7 @@ impl DnsQuestion {
             });
             iter.nth(*length as usize - 1);
         }
-        let question_type = (*iter.next()? as u16) | (*iter.next()? as u16) << 8; //todo handle the endianness correctly/platform agnostically
+        let question_type = (*iter.next()? as u16) | (*iter.next()? as u16) << 8; //todo handle the endianness correctly/platform agnostically, htons?
         let class = (*iter.next()? as u16) | (*iter.next()? as u16) << 8;
         Some(Self {
             domain_name: labels,
