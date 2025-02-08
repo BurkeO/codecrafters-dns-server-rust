@@ -7,5 +7,5 @@
 # Learn more: https://codecrafters.io/program-interface
 
 set -e # Exit on failure
-
+set RUST_BACKTRACE=1
 cargo build --release --target-dir=/tmp/codecrafters-build-dns-server-rust --manifest-path Cargo.toml
