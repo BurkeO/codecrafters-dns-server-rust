@@ -40,7 +40,8 @@ impl Server {
                         60,
                         vec![8, 8, 8, 8],
                     );
-                    response_buffer[12 + dns_question_bytes.len()..]
+                    let answer_end = 12 + dns_question_bytes.len() + answer.to_bytes().len();
+                    response_buffer[12 + dns_question_bytes.len()..answer_end]
                         .copy_from_slice(&answer.to_bytes());
 
                     udp_socket.send_to(&response_buffer, source)?;
