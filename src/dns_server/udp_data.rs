@@ -93,14 +93,13 @@ pub fn decode_questions(buf: &[u8], number_of_questions: u16) -> Option<Vec<DnsQ
         let mut labels = Vec::<Label>::new();
         while let Some(length) = iter.next() {
             if *length == 0x00 {
-                iter.next();
+                // iter.next();
                 break;
             }
             let (content_len, content) = if *length & 0b11000000 != 0 {
                 //compressed label
                 let offset = (((*length & 0b00111111) as u16) << 8 | *iter.next()? as u16) - 20;
                 let mut label_iter = buf.iter().skip(offset as usize);
-                iter.nth(2); //size of pointer label + pointer
                 let label_len = *label_iter.next()?;
                 (
                     label_len,
@@ -118,13 +117,14 @@ pub fn decode_questions(buf: &[u8], number_of_questions: u16) -> Option<Vec<DnsQ
                 iter.nth(*length as usize - 1);
                 (*length, content)
             };
+            println!("content_len: {}, content: {}", content_len, content);
             labels.push(Label {
                 length: content_len,
                 content,
             });
         }
-        let question_type = (*iter.next()? as u16) | (*iter.next()? as u16) << 8; //todo handle the endianness correctly/platform agnostically, htons?
-        let class = (*iter.next()? as u16) | (*iter.next()? as u16) << 8;
+        let question_type = (*iter.next()? as u16) << 8 | (*iter.next()? as u16); //todo handle the endianness correctly/platform agnostically, htons?
+        let class = (*iter.next()? as u16) << 8 | (*iter.next()? as u16); //todo handle the endianness correctly/platform agnostically, htons?
         questions.push(DnsQuestion {
             domain_name: labels,
             question_type, //todo need to move this out but at end of all questions?????
@@ -180,5 +180,43 @@ impl ResourceRecord {
         bytes.push(self.data_length as u8);
         bytes.extend(self.data.iter());
         bytes
+    }
+}
+
+//tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compress_question_parsing() {
+        let question = vec![
+            1,
+            ('F' as u8),
+            3,
+            ('I' as u8),
+            ('S' as u8),
+            ('I' as u8),
+            0,
+            0,
+            1,
+            0,
+            1, 
+            3,
+            ('F' as u8),
+            ('O' as u8),
+            ('O' as u8),
+            0b11000000,
+            0b00010100,
+            0,
+            0,
+            1,
+            0,
+            1, 
+        ];
+
+        let questions = decode_questions(&question, 2).unwrap();
+
+        assert_eq!(questions.len(), 2);
     }
 }
