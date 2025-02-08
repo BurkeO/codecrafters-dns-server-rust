@@ -32,7 +32,7 @@ impl Server {
                     response_header.recursion_available = 0;
                     response_header.reserved = 0;
                     response_header.response_code = if response_header.opcode == 0 { 0 } else { 4 };
-                    response_header.answer_record_count = 1;
+                    response_header.answer_record_count = response_header.question_count;
                     response_buffer[0..DNS_HEADER_SIZE]
                         .copy_from_slice(&response_header.to_bytes());
 
