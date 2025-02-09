@@ -4,13 +4,14 @@ use std::net::UdpSocket;
 pub struct Server {
     source_ip: String,
     port: u16,
+    resolver_addr: String
 }
 
 const DNS_HEADER_SIZE: usize = 12;
 
 impl Server {
-    pub fn new(source_ip: String, port: u16) -> Self {
-        Self { source_ip, port }
+    pub fn new(source_ip: String, port: u16, resolver_addr: String) -> Self {
+        Self { source_ip, port, resolver_addr }
     }
 
     pub fn start(&self) -> Result<(), Box<dyn std::error::Error>> {

@@ -1,9 +1,17 @@
+use clap::Parser;
 use codecrafters_dns_server::dns_server;
 use std::error::Error;
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    resolver: String,
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
-    println!("Logs from your program will appear here!");
-    let server = dns_server::server::Server::new("127.0.0.1".to_string(), 2053);
+    let args = Args::parse();
+    println!("Using resolver: {}", args.resolver);
+    let server = dns_server::server::Server::new("127.0.0.1".to_string(), 2053, args.resolver);
     server.start()?;
     Ok(())
 }
