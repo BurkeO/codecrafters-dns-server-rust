@@ -94,5 +94,9 @@ impl Server {
         query_questions: &[DnsQuestion],
     ) -> Result<Vec<ResourceRecord>, anyhow::Error> {
         todo!()
+        //add udp socket to self (might be able to reuse current one)
+        //same with buffers (could maybe reuse)
+        //send a dns question for each question - resolver only accepts 1 at a time
+        //combine the responses into a single vec and return
     }
 }
