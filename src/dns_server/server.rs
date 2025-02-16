@@ -9,8 +9,8 @@ pub struct Server {
     port: u16,
     forwarding_socket: UdpSocket,
     resolver_addr: String,
-    client_response_buf: [u8; 10000],
-    client_receive_buf: [u8; 10000],
+    client_response_buf: [u8; 1500],
+    client_receive_buf: [u8; 1500],
 }
 
 impl Server {
@@ -21,8 +21,8 @@ impl Server {
             forwarding_socket: UdpSocket::bind("127.0.0.1:0")
                 .expect("Failed to bind to forwarding socket"),
             resolver_addr,
-            client_response_buf: [0; 10000],
-            client_receive_buf: [0; 10000],
+            client_response_buf: [0; 1500],
+            client_receive_buf: [0; 1500],
         }
     }
 
@@ -35,7 +35,7 @@ impl Server {
                 }
                 Err(e) => {
                     eprintln!("Error receiving data: {}", e);
-                    break;
+                    return Err(e.into());
                 }
             }
         }
@@ -56,12 +56,13 @@ impl Server {
             query_header.question_count,
         );
         if query_questions.is_none() {
-            println!("Failed to decode questions with buf {:?}", &self.client_receive_buf[DNS_HEADER_SIZE..len]);
+            println!(
+                "Failed to decode questions with buf {:?}",
+                &self.client_receive_buf[DNS_HEADER_SIZE..len]
+            );
             return Err(anyhow::anyhow!("Failed to decode questions"));
         }
         let query_questions = query_questions.unwrap();
-
-        
 
         let mut response_header = query_header;
         response_header.query_response_indicator = 1;
@@ -102,8 +103,8 @@ impl Server {
         let mut resource_records = Vec::<ResourceRecord>::new();
         //add udp socket to self (might be able to reuse current one)
         //same with buffers (could maybe reuse)
-        let mut forwarding_buf = [0; 10000];
-        let mut receive_buf: [u8; 10000] = [0; 10000];
+        let mut forwarding_buf = [0; 1500];
+        let mut receive_buf: [u8; 1500] = [0; 1500];
         for (id, question) in query_questions.iter().enumerate() {
             let header = DnsHeader {
                 packet_identifier: id as u16,

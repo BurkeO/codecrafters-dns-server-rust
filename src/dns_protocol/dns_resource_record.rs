@@ -57,7 +57,8 @@ impl ResourceRecord {
             if length == 0x00 {
                 break;
             }
-            let (content_len, content) =  {let content = iter
+            let (content_len, content) = {
+                let content = iter
                     .clone()
                     .take(length as usize)
                     .map(|&x| x as char)
@@ -72,12 +73,7 @@ impl ResourceRecord {
         }
         let answer_type = u16::from_be_bytes([*iter.next()?, *iter.next()?]);
         let class = u16::from_be_bytes([*iter.next()?, *iter.next()?]);
-        let ttl = u32::from_be_bytes([
-            *iter.next()?,
-            *iter.next()?,
-            *iter.next()?,
-            *iter.next()?,
-        ]);
+        let ttl = u32::from_be_bytes([*iter.next()?, *iter.next()?, *iter.next()?, *iter.next()?]);
         let data_length = u16::from_be_bytes([*iter.next()?, *iter.next()?]);
         let data = iter.take(data_length as usize).copied().collect();
         Some(Self {
