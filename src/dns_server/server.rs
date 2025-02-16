@@ -39,7 +39,6 @@ impl Server {
                 }
             }
         }
-        Ok(())
     }
 
     fn handle_packet(
