@@ -84,6 +84,8 @@ impl Server {
         let mut answer_index = question_index;
         for answer in answers {
             let answer_bytes = answer.to_bytes();
+            println!("Answer index is {}", answer_index);
+            println!("Answer bytes length is {}", answer_bytes.len());
             println!("Taking slice from {} to {}", answer_index, answer_index + answer_bytes.len());
             self.client_response_buf[answer_index..answer_index + answer_bytes.len()]
                 .copy_from_slice(answer_bytes.as_slice());
