@@ -58,6 +58,7 @@ impl Server {
             query_header.question_count,
         )
         .expect("Failed to decode questions in query");
+        
 
         let mut response_header = query_header;
         response_header.query_response_indicator = 1;
@@ -83,13 +84,6 @@ impl Server {
         let mut answer_index = question_index;
         for answer in answers {
             let answer_bytes = answer.to_bytes();
-            println!("Answer index is {}", answer_index);
-            println!("Answer bytes length is {}", answer_bytes.len());
-            println!(
-                "Taking slice from {} to {}",
-                answer_index,
-                answer_index + answer_bytes.len()
-            );
             self.client_response_buf[answer_index..answer_index + answer_bytes.len()]
                 .copy_from_slice(answer_bytes.as_slice());
             answer_index += answer_bytes.len();
@@ -102,7 +96,6 @@ impl Server {
         &mut self,
         query_questions: &[DnsQuestion],
     ) -> Result<Vec<ResourceRecord>, anyhow::Error> {
-        println!("Forwarding query to resolver: {}", self.resolver_addr);
         let mut resource_records = Vec::<ResourceRecord>::new();
         //add udp socket to self (might be able to reuse current one)
         //same with buffers (could maybe reuse)
@@ -148,12 +141,6 @@ impl Server {
                 );
                 Err(anyhow::anyhow!("Failed to decode response answer"))?;
             } else if let Some(response_answer) = response_answer_opt {
-                println!("Answer domain name {:?}", response_answer.domain_name);
-                println!("Answer type {}", response_answer.answer_type);
-                println!("Answer class {}", response_answer.class);
-                println!("Answer ttl {}", response_answer.ttl);
-                println!("Answer data length {}", response_answer.data_length);
-                println!("Response Answer len {}", response_answer.to_bytes().len());
                 resource_records.push(response_answer);
             }
         }
