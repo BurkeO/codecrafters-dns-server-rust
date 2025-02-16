@@ -114,6 +114,7 @@ impl Server {
                 question_count: 1,
                 ..Default::default()
             };
+            println!("Forwarding query {:?}", question);
             let header_bytes = header.to_network_bytes();
             let question_bytes = question.to_bytes();
             forwarding_buf[..DNS_HEADER_SIZE].copy_from_slice(&header_bytes);
