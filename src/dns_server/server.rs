@@ -12,8 +12,8 @@ pub struct Server {
     port: u16,
     forwarding_socket: UdpSocket,
     resolver_addr: String,
-    client_response_buf: [u8; 3000],
-    client_receive_buf: [u8; 3000],
+    client_response_buf: [u8; 10000],
+    client_receive_buf: [u8; 10000],
 }
 
 impl Server {
@@ -24,8 +24,8 @@ impl Server {
             forwarding_socket: UdpSocket::bind("127.0.0.1:0")
                 .expect("Failed to bind to forwarding socket"),
             resolver_addr,
-            client_response_buf: [0; 3000],
-            client_receive_buf: [0; 3000],
+            client_response_buf: [0; 10000],
+            client_receive_buf: [0; 10000],
         }
     }
 
@@ -99,8 +99,8 @@ impl Server {
         let mut resource_records = Vec::<ResourceRecord>::new();
         //add udp socket to self (might be able to reuse current one)
         //same with buffers (could maybe reuse)
-        let mut forwarding_buf = [0; 3000];
-        let mut receive_buf: [u8; 3000] = [0; 3000];
+        let mut forwarding_buf = [0; 10000];
+        let mut receive_buf: [u8; 10000] = [0; 10000];
         for (id, question) in query_questions.iter().enumerate() {
             let header = DnsHeader {
                 packet_identifier: id as u16,
