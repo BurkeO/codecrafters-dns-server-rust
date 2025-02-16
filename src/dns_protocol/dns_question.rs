@@ -102,47 +102,17 @@ mod tests {
         assert_eq!(question.question_type, 1);
         assert_eq!(question.class, 1);
     }
-    #[test]
-    fn test_compressed_questions_last_label() {
-        let buf = [
-            0x03, 0x77, 0x77, 0x77, 0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63,
-            0x6f, 0x6d, 0x00, 0x00, 0x01, 0x00, 0x01, 
-            0x03, 0x61, 0x61, 0x61, 0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0xc0, 0x18, 0x00, 0x01, 0x00, 0x01,
-        ];
-        let questions = decode_questions(&buf, 2).unwrap();
-        assert_eq!(questions.len(), 2);
-        let mut question = &questions[0];
-        assert_eq!(question.domain_name.len(), 3);
-        assert_eq!(question.domain_name[0].length, 3);
-        assert_eq!(question.domain_name[0].content, "www");
-        assert_eq!(question.domain_name[1].length, 7);
-        assert_eq!(question.domain_name[1].content, "example");
-        assert_eq!(question.domain_name[2].length, 3);
-        assert_eq!(question.domain_name[2].content, "com");
-        assert_eq!(question.question_type, 1);
-        assert_eq!(question.class, 1);
-
-        question = &questions[1];
-        assert_eq!(question.domain_name.len(), 3);
-        assert_eq!(question.domain_name[0].length, 3);
-        assert_eq!(question.domain_name[0].content, "aaa");
-        assert_eq!(question.domain_name[1].length, 7);
-        assert_eq!(question.domain_name[1].content, "example");
-        assert_eq!(question.domain_name[2].length, 3);
-        assert_eq!(question.domain_name[2].content, "com");
-        assert_eq!(question.question_type, 1);
-        assert_eq!(question.class, 1);
-    }
+    
     // #[test]
-    // fn test_compressed_questions_middle() {
+    // fn test_compressed_questions_last_label() {
     //     let buf = [
     //         0x03, 0x77, 0x77, 0x77, 0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63,
     //         0x6f, 0x6d, 0x00, 0x00, 0x01, 0x00, 0x01, 
-    //         0x03, 0x61, 0x61, 0x61, 0xc0, 0x10, 0x00, 0x01, 0x00, 0x01,
+    //         0x03, 0x61, 0x61, 0x61, 0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0xc0, 0x18, 0x00, 0x01, 0x00, 0x01,
     //     ];
     //     let questions = decode_questions(&buf, 2).unwrap();
-    //     assert_eq!(questions.len(), 1);
-    //     let question = &questions[0];
+    //     assert_eq!(questions.len(), 2);
+    //     let mut question = &questions[0];
     //     assert_eq!(question.domain_name.len(), 3);
     //     assert_eq!(question.domain_name[0].length, 3);
     //     assert_eq!(question.domain_name[0].content, "www");
@@ -152,6 +122,38 @@ mod tests {
     //     assert_eq!(question.domain_name[2].content, "com");
     //     assert_eq!(question.question_type, 1);
     //     assert_eq!(question.class, 1);
+
+    //     question = &questions[1];
+    //     assert_eq!(question.domain_name.len(), 3);
+    //     assert_eq!(question.domain_name[0].length, 3);
+    //     assert_eq!(question.domain_name[0].content, "aaa");
+    //     assert_eq!(question.domain_name[1].length, 7);
+    //     assert_eq!(question.domain_name[1].content, "example");
+    //     assert_eq!(question.domain_name[2].length, 3);
+    //     assert_eq!(question.domain_name[2].content, "com");
+    //     assert_eq!(question.question_type, 1);
+    //     assert_eq!(question.class, 1);
+    // }
+
+    #[test]
+    fn test_compressed_questions_middle() {
+        let buf = [
+            0x03, 0x77, 0x77, 0x77, 0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63,
+            0x6f, 0x6d, 0x00, 0x00, 0x01, 0x00, 0x01, 
+            0x03, 0x61, 0x61, 0x61, 0xc0, 0x10, 0x00, 0x01, 0x00, 0x01,
+        ];
+        let questions = decode_questions(&buf, 2).unwrap();
+        assert_eq!(questions.len(), 1);
+        let question = &questions[0];
+        assert_eq!(question.domain_name.len(), 3);
+        assert_eq!(question.domain_name[0].length, 3);
+        assert_eq!(question.domain_name[0].content, "www");
+        assert_eq!(question.domain_name[1].length, 7);
+        assert_eq!(question.domain_name[1].content, "example");
+        assert_eq!(question.domain_name[2].length, 3);
+        assert_eq!(question.domain_name[2].content, "com");
+        assert_eq!(question.question_type, 1);
+        assert_eq!(question.class, 1);
 
     //     // question = &questions[1];
     //     // assert_eq!(question.domain_name.len(), 3);
@@ -163,5 +165,5 @@ mod tests {
     //     // assert_eq!(question.domain_name[2].content, "com");
     //     // assert_eq!(question.question_type, 1);
     //     // assert_eq!(question.class, 1);
-    // }
+    }
 }
