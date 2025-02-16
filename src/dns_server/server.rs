@@ -34,7 +34,7 @@ impl Server {
         loop {
             match udp_socket.recv_from(&mut self.client_receive_buf) {
                 Ok((size, source)) => {
-                    self.handle_packet(&mut udp_socket, &source)?;
+                    self.handle_packet(&mut udp_socket, &source, size)?;
                 }
                 Err(e) => {
                     eprintln!("Error receiving data: {}", e);
@@ -49,12 +49,13 @@ impl Server {
         &mut self,
         udp_socket: &mut UdpSocket,
         source: &SocketAddr,
+        len: usize,
     ) -> Result<(), anyhow::Error> {
         let query_header =
             DnsHeader::from_network_bytes(self.client_receive_buf[..DNS_HEADER_SIZE].try_into()?);
 
         let query_questions = decode_questions(
-            &self.client_receive_buf[DNS_HEADER_SIZE..],
+            &self.client_receive_buf[DNS_HEADER_SIZE..len],
             query_header.question_count,
         )
         .expect("Failed to decode questions in query");
