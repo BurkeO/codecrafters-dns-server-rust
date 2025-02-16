@@ -93,10 +93,42 @@ impl Server {
         &mut self,
         query_questions: &[DnsQuestion],
     ) -> Result<Vec<ResourceRecord>, anyhow::Error> {
-        todo!()
+        let mut resource_records = Vec::<ResourceRecord>::new();
         //add udp socket to self (might be able to reuse current one)
+        let forwarding_socket = UdpSocket::bind(self.resolver_addr.to_string())?;
         //same with buffers (could maybe reuse)
-        //send a dns question for each question - resolver only accepts 1 at a time
-        //combine the responses into a single vec and return
+        let mut forwarding_buf = [0; 1500];
+        let mut receive_buf: [u8; 1500] = [0; 1500];
+        for (id, question) in query_questions.iter().enumerate() {
+            let header = DnsHeader {
+                packet_identifier: id as u16,
+                question_count: 1,
+                ..Default::default()
+            };
+            let header_bytes = header.to_network_bytes();
+            let question_bytes = question.to_bytes();
+            forwarding_buf[..DNS_HEADER_SIZE].copy_from_slice(&header_bytes);
+            forwarding_buf[DNS_HEADER_SIZE..DNS_HEADER_SIZE + question_bytes.len()]
+                .copy_from_slice(question_bytes.as_slice());
+            forwarding_socket.send_to(
+                &forwarding_buf[..DNS_HEADER_SIZE + question_bytes.len()],
+                self.resolver_addr.to_string(),
+            )?;
+
+            let (_, _) = forwarding_socket.recv_from(&mut receive_buf)?;
+            let response_header =
+                DnsHeader::from_network_bytes(receive_buf[..DNS_HEADER_SIZE].try_into()?);
+            let response_questions = decode_questions(
+                &receive_buf[DNS_HEADER_SIZE..],
+                response_header.question_count,
+            )
+            .expect("Failed to decode questions in response from forwarder");
+            let response_answer = ResourceRecord::from_bytes(
+                &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..], //assuming it's one question + one answer for forwarder
+            )
+            .expect("Failed to decode answer in response from forwarder");
+            resource_records.push(response_answer);
+        }
+        Ok(resource_records)
     }
 }
