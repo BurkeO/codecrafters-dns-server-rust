@@ -72,11 +72,8 @@ impl DnsHeader {
     }
 
     pub fn from_network_bytes(header: &[u8; 12]) -> Self {
-        let flags: DnsHeaderFlags;
-        // flags.0 =  u16::from_be_bytes([header[2], header[3]]);
         Self {
             packet_identifier: u16::from_be_bytes([header[0], header[1]]),
-            // flags,
             query_response_indicator: header[2] >> 7,
             opcode: (header[2] >> 3) & 0b00001111,
             authoritative_answer: (header[2] >> 2) & 0b00000001,
