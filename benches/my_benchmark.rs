@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 // use codecrafters_dns_server::fibonacci;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
