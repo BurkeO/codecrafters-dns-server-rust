@@ -121,7 +121,7 @@ impl Server {
                 self.resolver_addr.to_string(),
             )?;
 
-            let (_, _) = self.forwarding_socket.recv_from(&mut receive_buf)?;
+            let (len, _) = self.forwarding_socket.recv_from(&mut receive_buf)?;
             let response_header =
                 DnsHeader::from_network_bytes(receive_buf[..DNS_HEADER_SIZE].try_into()?);
             let response_questions = decode_questions(
@@ -130,7 +130,7 @@ impl Server {
             )
             .expect("Failed to decode questions in response from forwarder");
             let response_answer = ResourceRecord::from_bytes(
-                &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..], //assuming it's one question + one answer for forwarder
+                &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len], //assuming it's one question + one answer for forwarder
             )
             .expect("Failed to decode answer in response from forwarder");
             
