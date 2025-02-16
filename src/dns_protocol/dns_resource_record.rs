@@ -2,12 +2,12 @@ use crate::dns_protocol::dns_question::Label;
 
 #[derive(Debug)]
 pub struct ResourceRecord {
-    domain_name: Vec<Label>,
-    answer_type: u16,
-    class: u16,
-    ttl: u32,
-    data_length: u16,
-    data: Vec<u8>,
+    pub domain_name: Vec<Label>,
+    pub answer_type: u16,
+    pub class: u16,
+    pub ttl: u32,
+    pub data_length: u16,
+    pub data: Vec<u8>,
 }
 
 impl ResourceRecord {
