@@ -59,6 +59,7 @@ pub fn decode_questions(buf: &[u8], number_of_questions: u16) -> Option<Vec<DnsQ
                 iter.nth(*length as usize - 1);
                 (*length, content)
             };
+            println!("content_len: {}, content: {}", content_len, content);
             labels.push(Label {
                 length: content_len,
                 content,
