@@ -86,7 +86,11 @@ impl Server {
             let answer_bytes = answer.to_bytes();
             println!("Answer index is {}", answer_index);
             println!("Answer bytes length is {}", answer_bytes.len());
-            println!("Taking slice from {} to {}", answer_index, answer_index + answer_bytes.len());
+            println!(
+                "Taking slice from {} to {}",
+                answer_index,
+                answer_index + answer_bytes.len()
+            );
             self.client_response_buf[answer_index..answer_index + answer_bytes.len()]
                 .copy_from_slice(answer_bytes.as_slice());
             answer_index += answer_bytes.len();
@@ -129,20 +133,22 @@ impl Server {
                 response_header.question_count,
             )
             .expect("Failed to decode questions in response from forwarder");
-            let response_answer = ResourceRecord::from_bytes(
+            let response_answer_opt = ResourceRecord::from_bytes(
                 &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len], //assuming it's one question + one answer for forwarder
-            )
-            .expect("Failed to decode answer in response from forwarder");
-            
-            let answer = &response_answer;
-            println!("Answer domain name {:?}", answer.domain_name);
-            println!("Answer type {}", answer.answer_type);
-            println!("Answer class {}", answer.class);
-            println!("Answer ttl {}", answer.ttl);
-            println!("Answer data length {}", answer.data_length);
-            println!("Response Answer len {}", response_answer.to_bytes().len());
-            
-            resource_records.push(response_answer);
+            );
+            if response_answer_opt.is_none() {
+                let bytes = &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len];
+                println!("Failed to decode response answer with bytes {:?}", bytes);
+                Err(anyhow::anyhow!("Failed to decode response answer"))?;
+            } else if let Some(response_answer) = response_answer_opt {
+                println!("Answer domain name {:?}", response_answer.domain_name);
+                println!("Answer type {}", response_answer.answer_type);
+                println!("Answer class {}", response_answer.class);
+                println!("Answer ttl {}", response_answer.ttl);
+                println!("Answer data length {}", response_answer.data_length);
+                println!("Response Answer len {}", response_answer.to_bytes().len());
+                resource_records.push(response_answer);
+            }
         }
         Ok(resource_records)
     }
