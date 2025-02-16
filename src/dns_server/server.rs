@@ -53,15 +53,8 @@ impl Server {
         let query_questions = decode_questions(
             &self.client_receive_buf[DNS_HEADER_SIZE..len],
             query_header.question_count,
-        );
-        if query_questions.is_none() {
-            println!(
-                "Failed to decode questions with buf {:?}",
-                &self.client_receive_buf[DNS_HEADER_SIZE..len]
-            );
-            return Err(anyhow::anyhow!("Failed to decode questions"));
-        }
-        let query_questions = query_questions.unwrap();
+        )
+        .expect("Failed to decode questions in client query");
 
         let mut response_header = query_header;
         response_header.query_response_indicator = 1;
@@ -129,23 +122,11 @@ impl Server {
                 response_header.question_count,
             )
             .expect("Failed to decode questions in response from forwarder");
-            let response_answer_opt = ResourceRecord::from_bytes(
+            let response_answer = ResourceRecord::from_bytes(
                 &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len], //assuming it's one question + one answer for forwarder
-            );
-            if response_answer_opt.is_none() {
-                println!("Response questions {:?}", response_questions);
-                let bytes =
-                    &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len];
-                println!(
-                    "Failed to decode response answer with bytes from {} to {} :  {:?}",
-                    DNS_HEADER_SIZE + response_questions[0].to_bytes().len(),
-                    len,
-                    bytes
-                );
-                Err(anyhow::anyhow!("Failed to decode response answer"))?;
-            } else if let Some(response_answer) = response_answer_opt {
-                resource_records.push(response_answer);
-            }
+            )
+            .expect("Failed to decode answers in forwarding service response");
+            resource_records.push(response_answer);
         }
         Ok(resource_records)
     }
