@@ -1,6 +1,6 @@
 use clap::Parser;
 use codecrafters_dns_server::dns_server;
-use std::{env, error::Error};
+use std::error::Error;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {

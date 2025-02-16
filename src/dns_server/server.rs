@@ -2,10 +2,7 @@ use crate::dns_protocol::{
     dns_header::DnsHeader, dns_header::DNS_HEADER_SIZE, dns_question::decode_questions,
     dns_question::DnsQuestion, dns_resource_record::ResourceRecord,
 };
-use std::{
-    net::{Ipv4Addr, SocketAddr, ToSocketAddrs, UdpSocket},
-    str::FromStr,
-};
+use std::net::{SocketAddr, UdpSocket};
 
 pub struct Server {
     source_ip: String,

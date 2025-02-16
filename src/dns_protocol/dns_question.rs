@@ -33,7 +33,7 @@ pub fn decode_questions(buf: &[u8], number_of_questions: u16) -> Option<Vec<DnsQ
     let mut questions = Vec::<DnsQuestion>::new();
     let mut label_iter = buf.iter();
     let mut end_of_label_iter = buf.iter();
-    for index in 0..number_of_questions {
+    for _ in 0..number_of_questions {
         let mut labels = Vec::<Label>::new();
         let mut is_compressed = false;
         while let Some(length) = label_iter.next() {
@@ -42,7 +42,7 @@ pub fn decode_questions(buf: &[u8], number_of_questions: u16) -> Option<Vec<DnsQ
                 if is_compressed {
                     end_of_label_iter.next();
                 }
-                let y = end_of_label_iter.next()?;
+                end_of_label_iter.next()?;
                 break;
             }
             let (content_len, content) = if *length & 0b11000000 != 0 {
