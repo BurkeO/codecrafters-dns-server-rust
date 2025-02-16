@@ -1,5 +1,6 @@
 use crate::dns_protocol::dns_question::Label;
 
+#[derive(Debug)]
 pub struct ResourceRecord {
     domain_name: Vec<Label>,
     answer_type: u16,

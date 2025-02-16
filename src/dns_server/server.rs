@@ -68,7 +68,7 @@ impl Server {
             .copy_from_slice(&response_header.to_network_bytes());
 
         let answers = self.forward_query(query_questions.as_slice())?;
-
+        println!("Received answers: {:?}", answers);
         let mut question_index = DNS_HEADER_SIZE;
         for question in query_questions {
             let mut response_question = question;

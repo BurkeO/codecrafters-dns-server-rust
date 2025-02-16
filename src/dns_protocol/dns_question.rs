@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Label {
     pub length: u8,
     pub content: String,
