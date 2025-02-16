@@ -21,7 +21,7 @@ impl Server {
         Self {
             source_ip,
             port,
-            forwarding_socket: UdpSocket::bind("127.0.0.1")
+            forwarding_socket: UdpSocket::bind("127.0.0.1:0")
                 .expect("Failed to bind to forwarding socket"),
             resolver_addr,
             client_response_buf: [0; 1500],
