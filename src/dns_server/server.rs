@@ -133,6 +133,7 @@ impl Server {
                 &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..], //assuming it's one question + one answer for forwarder
             )
             .expect("Failed to decode answer in response from forwarder");
+            println!("Response Answer len {}", response_answer.to_bytes().len());
             resource_records.push(response_answer);
         }
         Ok(resource_records)
