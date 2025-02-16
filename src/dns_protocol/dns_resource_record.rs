@@ -65,7 +65,6 @@ impl ResourceRecord {
                 iter.nth(length as usize - 1);
                 (length, content)
             };
-            println!("RR from bytes - content_len: {}, content: {}", content_len, content);
             labels.push(Label {
                 length: content_len,
                 content,
