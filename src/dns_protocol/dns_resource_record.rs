@@ -47,4 +47,58 @@ impl ResourceRecord {
         bytes.extend(self.data.iter());
         bytes
     }
+
+    pub fn from_bytes(buf: &[u8]) -> Option<Self> {
+        let mut iter = buf.iter();
+        let mut labels = Vec::<Label>::new();
+        loop {
+            let length = *iter.next()?;
+            if length == 0x00 {
+                break;
+            }
+            let (content_len, content) = if length & 0b11000000 != 0 {
+                //compressed label
+                let offset = (((length & 0b00111111) as u16) << 8 | *iter.next()? as u16) - 12;
+                let mut label_iter = buf.iter().skip(offset as usize);
+                let label_len = *label_iter.next()?;
+                (
+                    label_len,
+                    label_iter
+                        .take(label_len as usize)
+                        .map(|&x| x as char)
+                        .collect(),
+                )
+            } else {
+                let content = iter
+                    .clone()
+                    .take(length as usize)
+                    .map(|&x| x as char)
+                    .collect();
+                iter.nth(length as usize - 1);
+                (length, content)
+            };
+            labels.push(Label {
+                length: content_len,
+                content,
+            });
+        }
+        let answer_type = u16::from_be_bytes([*iter.next()?, *iter.next()?]);
+        let class = u16::from_be_bytes([*iter.next()?, *iter.next()?]);
+        let ttl = u32::from_be_bytes([
+            *iter.next()?,
+            *iter.next()?,
+            *iter.next()?,
+            *iter.next()?,
+        ]);
+        let data_length = u16::from_be_bytes([*iter.next()?, *iter.next()?]);
+        let data = iter.take(data_length as usize).map(|&x| x).collect();
+        Some(Self {
+            domain_name: labels,
+            answer_type,
+            class,
+            ttl,
+            data_length,
+            data,
+        })
+    }
 }
