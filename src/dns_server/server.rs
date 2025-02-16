@@ -93,6 +93,7 @@ impl Server {
         &mut self,
         query_questions: &[DnsQuestion],
     ) -> Result<Vec<ResourceRecord>, anyhow::Error> {
+        println!("Forwarding query to resolver");
         let mut resource_records = Vec::<ResourceRecord>::new();
         //add udp socket to self (might be able to reuse current one)
         let forwarding_socket = UdpSocket::bind(self.resolver_addr.to_string())?;
