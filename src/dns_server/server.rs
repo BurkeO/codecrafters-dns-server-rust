@@ -34,7 +34,6 @@ impl Server {
         loop {
             match udp_socket.recv_from(&mut self.client_receive_buf) {
                 Ok((size, source)) => {
-                    println!("Received {} bytes from {}", size, source);
                     self.handle_packet(&mut udp_socket, &source)?;
                 }
                 Err(e) => {
@@ -68,7 +67,7 @@ impl Server {
             .copy_from_slice(&response_header.to_network_bytes());
 
         let answers = self.forward_query(query_questions.as_slice())?;
-        println!("Received {} answers", answers.len());
+        println!("Handle Packet - Received {} answers", answers.len());
         let mut question_index = DNS_HEADER_SIZE;
         for question in query_questions {
             let mut response_question = question;
@@ -137,8 +136,15 @@ impl Server {
                 &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len], //assuming it's one question + one answer for forwarder
             );
             if response_answer_opt.is_none() {
-                let bytes = &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len];
-                println!("Failed to decode response answer with bytes from {} to {} :  {:?}", DNS_HEADER_SIZE + response_questions[0].to_bytes().len(), len, bytes);
+                println!("Response questions {:?}", response_questions);
+                let bytes =
+                    &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len];
+                println!(
+                    "Failed to decode response answer with bytes from {} to {} :  {:?}",
+                    DNS_HEADER_SIZE + response_questions[0].to_bytes().len(),
+                    len,
+                    bytes
+                );
                 Err(anyhow::anyhow!("Failed to decode response answer"))?;
             } else if let Some(response_answer) = response_answer_opt {
                 println!("Answer domain name {:?}", response_answer.domain_name);
