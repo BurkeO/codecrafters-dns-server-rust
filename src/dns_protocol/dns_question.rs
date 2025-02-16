@@ -40,6 +40,7 @@ pub fn decode_questions(buf: &[u8], number_of_questions: u16) -> Option<Vec<DnsQ
             }
             let (content_len, content) = if *length & 0b11000000 != 0 {
                 //compressed label
+                println!("is compressed label");
                 let offset = (((*length & 0b00111111) as u16) << 8 | *iter.next()? as u16) - 12; //or 16? 16 passed the CI but i don't think it's right
                 let mut label_iter = buf.iter().skip(offset as usize);
                 let label_len = *label_iter.next()?;
