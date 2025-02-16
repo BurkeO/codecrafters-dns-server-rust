@@ -79,7 +79,7 @@ impl ResourceRecord {
             *iter.next()?,
         ]);
         let data_length = u16::from_be_bytes([*iter.next()?, *iter.next()?]);
-        let data = iter.take(data_length as usize).map(|&x| x).collect();
+        let data = iter.take(data_length as usize).copied().collect();
         Some(Self {
             domain_name: labels,
             answer_type,
