@@ -138,7 +138,7 @@ impl Server {
             );
             if response_answer_opt.is_none() {
                 let bytes = &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..len];
-                println!("Failed to decode response answer with bytes {:?}", bytes);
+                println!("Failed to decode response answer with bytes from {} to {} :  {:?}", DNS_HEADER_SIZE + response_questions[0].to_bytes().len(), len, bytes);
                 Err(anyhow::anyhow!("Failed to decode response answer"))?;
             } else if let Some(response_answer) = response_answer_opt {
                 println!("Answer domain name {:?}", response_answer.domain_name);
