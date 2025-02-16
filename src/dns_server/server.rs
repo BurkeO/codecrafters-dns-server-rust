@@ -57,8 +57,13 @@ impl Server {
         let query_questions = decode_questions(
             &self.client_receive_buf[DNS_HEADER_SIZE..len],
             query_header.question_count,
-        )
-        .expect("Failed to decode questions in query");
+        );
+        if query_questions.is_none() {
+            println!("Failed to decode questions with buf {:?}", &self.client_receive_buf[DNS_HEADER_SIZE..len]);
+            return Err(anyhow::anyhow!("Failed to decode questions"));
+        }
+        let query_questions = query_questions.unwrap();
+
         
 
         let mut response_header = query_header;

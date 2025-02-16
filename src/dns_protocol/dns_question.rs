@@ -30,7 +30,6 @@ impl DnsQuestion {
 pub fn decode_questions(buf: &[u8], number_of_questions: u16) -> Option<Vec<DnsQuestion>> {
     //todo lots of copying going on here
     println!("Parsing {} questions", number_of_questions);
-    println!("buf: {:?}", buf);
     let mut questions = Vec::<DnsQuestion>::new();
     let mut iter = buf.iter();
     for _ in 0..number_of_questions {
@@ -138,9 +137,7 @@ mod tests {
     #[test]
     fn test_compressed_questions_middle() {
         let buf = [
-            0x03, 0x77, 0x77, 0x77, 0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63,
-            0x6f, 0x6d, 0x00, 0x00, 0x01, 0x00, 0x01, 
-            0x03, 0x61, 0x61, 0x61, 0xc0, 0x10, 0x00, 0x01, 0x00, 0x01,
+            12, 99, 111, 100, 101, 99, 114, 97, 102, 116, 
         ];
         let questions = decode_questions(&buf, 2).unwrap();
         assert_eq!(questions.len(), 1);
