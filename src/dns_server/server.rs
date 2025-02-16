@@ -96,7 +96,7 @@ impl Server {
         println!("Forwarding query to resolver");
         let mut resource_records = Vec::<ResourceRecord>::new();
         //add udp socket to self (might be able to reuse current one)
-        let forwarding_socket = UdpSocket::bind(self.resolver_addr.to_string())?;
+        let forwarding_socket = UdpSocket::bind(self.resolver_addr.to_string()).expect("Failed to bind to resolver address");
         //same with buffers (could maybe reuse)
         let mut forwarding_buf = [0; 1500];
         let mut receive_buf: [u8; 1500] = [0; 1500];
