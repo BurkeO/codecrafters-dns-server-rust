@@ -57,20 +57,7 @@ impl ResourceRecord {
             if length == 0x00 {
                 break;
             }
-            let (content_len, content) = if length & 0b11000000 != 0 {
-                //compressed label
-                let offset = (((length & 0b00111111) as u16) << 8 | *iter.next()? as u16) - 12;
-                let mut label_iter = buf.iter().skip(offset as usize);
-                let label_len = *label_iter.next()?;
-                (
-                    label_len,
-                    label_iter
-                        .take(label_len as usize)
-                        .map(|&x| x as char)
-                        .collect(),
-                )
-            } else {
-                let content = iter
+            let (content_len, content) =  {let content = iter
                     .clone()
                     .take(length as usize)
                     .map(|&x| x as char)
@@ -78,6 +65,7 @@ impl ResourceRecord {
                 iter.nth(length as usize - 1);
                 (length, content)
             };
+            println!("RR from bytes - content_len: {}, content: {}", content_len, content);
             labels.push(Label {
                 length: content_len,
                 content,
