@@ -17,6 +17,7 @@ pub struct Server {
 
 impl Server {
     pub fn new(source_ip: String, port: u16, resolver_addr: String) -> Self {
+        println!("Resovler addr: {}", resolver_addr);
         Self {
             source_ip,
             port,
