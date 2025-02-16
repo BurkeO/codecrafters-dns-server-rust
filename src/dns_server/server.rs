@@ -129,6 +129,7 @@ impl Server {
                 response_header.question_count,
             )
             .expect("Failed to decode questions in response from forwarder");
+            println!("Forward Query - Taking slice from {} to {}", DNS_HEADER_SIZE + response_questions[0].to_bytes().len(), receive_buf.len());
             let response_answer = ResourceRecord::from_bytes(
                 &receive_buf[DNS_HEADER_SIZE + response_questions[0].to_bytes().len()..], //assuming it's one question + one answer for forwarder
             )
