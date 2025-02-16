@@ -10,18 +10,17 @@ use std::{
 pub struct Server {
     source_ip: String,
     port: u16,
-    resolver_addr: Ipv4Addr,
+    resolver_addr: String,
     client_response_buf: [u8; 1500],
     client_receive_buf: [u8; 1500],
 }
 
 impl Server {
     pub fn new(source_ip: String, port: u16, resolver_addr: String) -> Self {
-        println!("Resovler addr: {}", resolver_addr);
         Self {
             source_ip,
             port,
-            resolver_addr: std::net::Ipv4Addr::from_str(&resolver_addr).unwrap(),
+            resolver_addr: resolver_addr,
             client_response_buf: [0; 1500],
             client_receive_buf: [0; 1500],
         }
